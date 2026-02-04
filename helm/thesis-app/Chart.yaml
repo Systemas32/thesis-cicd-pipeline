@@ -1,0 +1,9 @@
+apiVersion: v2
+name: thesis-app
+description: CI/CD Pipeline Demo Application for BSc Thesis
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+maintainers:
+  - name: Iasonas Lykakis
+    email: ilykakis23b@amcstudent.edu.gr
