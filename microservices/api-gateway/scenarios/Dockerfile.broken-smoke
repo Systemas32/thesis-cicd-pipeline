@@ -1,0 +1,27 @@
+# Scenario 3: Healthy image, failing smoke tests.
+# The container starts normally and /health and /ready return 200, so the
+# deployment becomes ready and the health check passes. However /api/users
+# always returns HTTP 500, so the Robot Framework smoke tests fail and the
+# harness triggers a rollback.
+#
+# Build context: ./microservices/api-gateway
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app/ ./app/
+# Overwrite main.py with the variant whose /api/users endpoint returns 500.
+COPY scenarios/main_smoke_fail.py ./app/main.py
+
+RUN useradd --create-home appuser && chown -R appuser:appuser /app
+USER appuser
+
+ENV PORT=5000
+ENV PYTHONUNBUFFERED=1
+
+EXPOSE 5000
+
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "app.main:app"]

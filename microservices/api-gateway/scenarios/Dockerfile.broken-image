@@ -1,0 +1,25 @@
+# Scenario 2: Broken image.
+# Identical to the production api-gateway image except the container exits
+# immediately with code 1 on startup. Kubernetes never sees a ready pod, so
+# the deployment stays in CrashLoopBackOff and the health check fails.
+#
+# Build context: ./microservices/api-gateway
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app/ ./app/
+
+RUN useradd --create-home appuser && chown -R appuser:appuser /app
+USER appuser
+
+ENV PORT=5000
+ENV PYTHONUNBUFFERED=1
+
+EXPOSE 5000
+
+# Deliberately crash on startup to simulate a broken image.
+CMD ["python", "-c", "import sys; sys.exit(1)"]

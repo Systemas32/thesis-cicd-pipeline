@@ -1,0 +1,27 @@
+# Scenario 4: Slow start.
+# Identical to the production api-gateway image except the container sleeps
+# 90 seconds before gunicorn binds to the port. The readiness and liveness
+# probes (initialDelaySeconds 10, periodSeconds 10, failureThreshold 3) give
+# up after roughly 40 seconds, so the deployment never becomes ready and the
+# health check fails on timeout.
+#
+# Build context: ./microservices/api-gateway
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app/ ./app/
+
+RUN useradd --create-home appuser && chown -R appuser:appuser /app
+USER appuser
+
+ENV PORT=5000
+ENV PYTHONUNBUFFERED=1
+
+EXPOSE 5000
+
+# Delay binding to the port long enough to exceed the probe failureThreshold.
+CMD ["sh", "-c", "sleep 90 && gunicorn --bind 0.0.0.0:5000 --workers 2 app.main:app"]
