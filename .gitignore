@@ -211,5 +211,7 @@ output.xml
 log.html
 report.html
 
-# Thesis experiment logs
+# Thesis experiment logs and generated result summaries
 logs/
+results-summary.json
+results-summary.md
