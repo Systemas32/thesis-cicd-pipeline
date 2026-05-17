@@ -164,7 +164,9 @@ if [ "$HEALTH_OK" -eq 1 ]; then
 
     SMOKE_OK=0
     if start_port_forward; then
-        if robot --outputdir "logs/robot-${SCENARIO}-${ITERATION}" \
+        # Invoke Robot via "python -m robot" so it works whether or not the
+        # robot console script is on PATH.
+        if python -m robot --outputdir "logs/robot-${SCENARIO}-${ITERATION}" \
             tests/smoke/smoke_tests.robot; then
             SMOKE_OK=1
         fi
