@@ -4,12 +4,17 @@
 
 set -e
 
+# shellcheck source=lib/log.sh
+source "$(dirname "$0")/lib/log.sh"
+
 NAMESPACE=${1:-default}
 RELEASE_NAME=${2:-thesis-app}
 MAX_RETRIES=${3:-30}
 RETRY_INTERVAL=${4:-10}
 
 echo "Starting health checks for $RELEASE_NAME in namespace $NAMESPACE"
+log_event health_check_started release="$RELEASE_NAME" namespace="$NAMESPACE" \
+    max_retries="$MAX_RETRIES" retry_interval="$RETRY_INTERVAL"
 
 check_deployment_health() {
     local deployment=$1
@@ -23,15 +28,22 @@ check_deployment_health() {
         
         if [ "$READY" == "$DESIRED" ] && [ "$READY" != "0" ]; then
             echo "✓ Deployment $deployment is healthy ($READY/$DESIRED replicas ready)"
+            log_event deployment_ready deployment="$deployment" \
+                ready="$READY" desired="$DESIRED"
             return 0
         fi
-        
+
         echo "  Waiting for $deployment... ($READY/$DESIRED ready, attempt $((retries+1))/$MAX_RETRIES)"
+        log_event health_check_attempt deployment="$deployment" \
+            attempt="$((retries+1))" max_retries="$MAX_RETRIES" \
+            ready="$READY" desired="$DESIRED"
         sleep $RETRY_INTERVAL
         retries=$((retries+1))
     done
-    
+
     echo "✗ Deployment $deployment failed health check"
+    log_event health_check_failed deployment="$deployment" \
+        reason="deployment_not_ready" ready="$READY" desired="$DESIRED"
     return 1
 }
 
@@ -69,4 +81,5 @@ check_deployment_health "${RELEASE_NAME}-user-service" || exit 1
 
 echo ""
 echo "All health checks passed!"
+log_event health_check_passed release="$RELEASE_NAME"
 exit 0
