@@ -23,5 +23,7 @@ EXPOSE 5001
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:5001/health')" || exit 1
 
-# Run with gunicorn for production
-CMD ["gunicorn", "--bind", "0.0.0.0:5001", "--workers", "2", "app.main:app"]
+# Run with gunicorn. A single worker is used deliberately: user-service keeps
+# its data in an in-memory store, which is per-process, so multiple workers
+# would each hold a divergent copy of the database.
+CMD ["gunicorn", "--bind", "0.0.0.0:5001", "--workers", "1", "app.main:app"]
