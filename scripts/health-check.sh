@@ -69,34 +69,6 @@ check_deployment_health() {
     return 1
 }
 
-check_endpoint_health() {
-    local service=$1
-    local port=$2
-    local path=$3
-    local retries=0
-    
-    echo "Checking endpoint: $service:$port$path"
-    
-    # Get service URL (for NodePort or port-forward)
-    local url="http://localhost:$port$path"
-    
-    while [ $retries -lt $MAX_RETRIES ]; do
-        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")
-        
-        if [ "$HTTP_CODE" == "200" ]; then
-            echo "✓ Endpoint $service$path is healthy (HTTP $HTTP_CODE)"
-            return 0
-        fi
-        
-        echo "  Waiting for $service$path... (HTTP $HTTP_CODE, attempt $((retries+1))/$MAX_RETRIES)"
-        sleep $RETRY_INTERVAL
-        retries=$((retries+1))
-    done
-    
-    echo "✗ Endpoint $service$path failed health check"
-    return 1
-}
-
 # Check deployments
 check_deployment_health "${RELEASE_NAME}-api-gateway" || exit 1
 check_deployment_health "${RELEASE_NAME}-user-service" || exit 1
