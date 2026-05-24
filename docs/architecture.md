@@ -50,9 +50,11 @@ revision. This feedback path is the thesis's core contribution.
 
 The developer workstation holds the source code, which is pushed to the GitHub
 repository. The GitHub Actions workflow (`.github/workflows/ci-cd.yaml`) builds
-the microservice images, validates the test suites, and pushes the images to
-Docker Hub. It deliberately does **not** deploy: deployment and rollback run
-locally, matching the thesis's cost-effective framing.
+the microservice images, syntax-checks the Robot Framework smoke suite, and
+pushes the images to Docker Hub. It deliberately does **not** deploy: deployment
+and rollback run locally, matching the thesis's cost-effective framing. The
+smoke tests themselves are executed for real later, by the local scenario
+harness against the Minikube cluster.
 
 ### Layer 2 - Containerization and distribution
 
@@ -175,6 +177,6 @@ MTTR and correctness statistics for Chapter 4.
 - **Orchestration**: Kubernetes (Minikube)
 - **Package management**: Helm
 - **CI (build/test/push)**: GitHub Actions
-- **Testing**: Robot Framework (smoke), pytest (unit)
+- **Testing**: Robot Framework (smoke)
 - **Language**: Python (Flask)
 - **Local orchestration**: Bash scripts (Git Bash on Windows)

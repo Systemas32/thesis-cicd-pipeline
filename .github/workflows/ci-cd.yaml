@@ -12,11 +12,12 @@ env:
   USER_SERVICE_IMAGE: systemas32/user-service
 
 jobs:
-  # Job 1: Build and test
-  # Validates the Python services and the Robot Framework smoke suite.
-  # Deploy, health-check and rollback run locally against Minikube and are
-  # therefore not part of this workflow.
-  build-and-test:
+  # Job 1: Static check of the smoke suite
+  # Syntax-checks the Robot Framework smoke tests so a broken suite fails fast
+  # before any images are built. Deploy, health-check, real smoke execution and
+  # rollback all run locally against Minikube via scripts/run-scenario.sh and
+  # are therefore not part of this workflow.
+  smoke-suite-syntax-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -31,24 +32,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r tests/smoke/requirements.txt
-          pip install pytest
 
-      - name: Run unit tests (if any exist)
-        run: |
-          if ls tests/unit/test_*.py >/dev/null 2>&1; then
-            pytest tests/unit -v
-          else
-            echo "No unit tests present - skipping."
-          fi
-
-      - name: Validate Robot Framework smoke suite
+      - name: Syntax-check Robot Framework smoke suite
         run: robot --dryrun tests/smoke/smoke_tests.robot
 
   # Job 2: Build and push images
   # Builds the production images for both microservices and pushes them to
-  # Docker Hub. Runs only after the tests pass.
+  # Docker Hub. Runs only after the smoke-suite syntax check passes.
   build-and-push-images:
-    needs: build-and-test
+    needs: smoke-suite-syntax-check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
