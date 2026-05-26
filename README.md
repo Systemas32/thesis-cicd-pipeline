@@ -39,7 +39,8 @@ thesis-cicd-pipeline/
 │   └── user-service/         # User management service
 ├── helm/thesis-app/          # Helm chart for Kubernetes deployment
 ├── tests/
-│   └── smoke/                # Robot Framework smoke tests
+│   ├── smoke/                # Robot Framework smoke tests
+│   └── unit/                 # Pytest unit tests (per-service)
 ├── scripts/                  # Health check, rollback, experiment harnesses
 │   └── lib/                  # Shared structured-logging helper
 └── docs/                     # Documentation

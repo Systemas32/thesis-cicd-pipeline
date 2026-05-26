@@ -89,7 +89,7 @@ An external orchestrator monitors each deployment:
    - Exposes `/health` (liveness) and `/ready` (readiness) endpoints
 
 2. **User Service** (port 5001)
-   - Handles user management operations (CRUD)
+   - Handles basic user management operations (list and create)
    - In-memory storage for demo purposes
    - Exposes `/health` and `/ready` endpoints
 
@@ -177,6 +177,6 @@ MTTR and correctness statistics for Chapter 4.
 - **Orchestration**: Kubernetes (Minikube)
 - **Package management**: Helm
 - **CI (build/test/push)**: GitHub Actions
-- **Testing**: Robot Framework (smoke)
+- **Testing**: Robot Framework (smoke), pytest (unit)
 - **Language**: Python (Flask)
 - **Local orchestration**: Bash scripts (Git Bash on Windows)

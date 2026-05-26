@@ -50,14 +50,6 @@ def get_users():
         'count': len(users_db)
     }), 200
 
-@app.route('/users/<int:user_id>', methods=['GET'])
-def get_user(user_id):
-    """Get a specific user by ID."""
-    user = next((u for u in users_db if u['id'] == user_id), None)
-    if user:
-        return jsonify(user), 200
-    return jsonify({'error': 'User not found'}), 404
-
 @app.route('/users', methods=['POST'])
 def create_user():
     """Create a new user."""
@@ -76,16 +68,6 @@ def create_user():
     next_id += 1
     
     return jsonify(new_user), 201
-
-@app.route('/users/<int:user_id>', methods=['DELETE'])
-def delete_user(user_id):
-    """Delete a user by ID."""
-    global users_db
-    user = next((u for u in users_db if u['id'] == user_id), None)
-    if user:
-        users_db = [u for u in users_db if u['id'] != user_id]
-        return jsonify({'message': 'User deleted'}), 200
-    return jsonify({'error': 'User not found'}), 404
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5001))
